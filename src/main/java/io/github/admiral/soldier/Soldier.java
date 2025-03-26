@@ -12,9 +12,11 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Subscribe {
-    /** It indicates this method will subscribe what events.*/
+public @interface Soldier {
+
+    /** It indicates this method will subscribe what commands.*/
     String[] subscribes() default {};
-    /** It indicates this method will produce what events.*/
+
+    /** It indicates this method will produce what commands.*/
     String[] produces() default {};
 }

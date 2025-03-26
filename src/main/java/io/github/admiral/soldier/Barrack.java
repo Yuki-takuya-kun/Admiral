@@ -7,7 +7,7 @@ import java.lang.annotation.*;
 
 
 /**
- * This annotation is going to indicates a class is a soldier class, which should implement methods that subscribe
+ * This annotation is going to indicates a class is a barrack class, which should implement methods that subscribe
  * another Soldier or {@link Spokesman}.
  *
  * @author Jiahao hwang
@@ -17,7 +17,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Component
-public @interface Soldier {
+public @interface Barrack {
 
     /** The name of the soldier, defaults to the class name.*/
     String name() default "";
