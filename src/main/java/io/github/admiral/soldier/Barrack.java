@@ -1,0 +1,27 @@
+package io.github.admiral.soldier;
+
+import io.github.admiral.spokesman.Spokesman;
+import org.springframework.stereotype.Component;
+
+import java.lang.annotation.*;
+
+
+/**
+ * This annotation is going to indicates a class is a soldier class, which should implement methods that subscribe
+ * another Soldier or {@link Spokesman}.
+ *
+ * @author Jiahao hwang
+ * @version 0.0.1
+ */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Component
+public @interface Soldier {
+
+    /** The name of the soldier, defaults to the class name.*/
+    String name() default "";
+
+    /** The id prefix of the soldier, if it is */
+    String id() default "";
+}
