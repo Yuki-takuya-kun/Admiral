@@ -14,9 +14,8 @@ import java.util.Map;
 public class BarrackFactory implements SoldierCreatable{
 
     @Override
-    public Map<SoldierInfo, SoldierInstance> createSoldiers(Object object){
+    public Map<SoldierInfo, SoldierInstance> createSoldiers(Object barrack){
         Map<SoldierInfo, SoldierInstance> soldiers = new HashMap<>();
-        Barrack barrack = (Barrack) object;
 
         Method[] methods = barrack.getClass().getMethods();
         // get method that use {@link Soldier annotation.}
@@ -26,9 +25,9 @@ public class BarrackFactory implements SoldierCreatable{
                     // Default soldier name will be the full quality barrackName concat with method name.
                     String name = barrack.getClass().getName() + "$" + method.getName();
                     String[] subscribes = soldier.subscribes();
-                    String[] produces = soldier.produces();
-                    SoldierInfo soldierInfo = SoldierInfo.createSoldierInfo(name, subscribes, produces);
-                    SoldierInstance soldierInstance = new SoldierInstance(soldierInfo, object, method);
+                    String produce = soldier.produce();
+                    SoldierInfo soldierInfo = SoldierInfo.createSoldierInfo(name, subscribes, produce);
+                    SoldierInstance soldierInstance = new SoldierInstance(soldierInfo, barrack, method);
                     soldiers.put(soldierInfo, soldierInstance);
                 }
             }

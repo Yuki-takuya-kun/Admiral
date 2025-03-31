@@ -22,6 +22,4 @@ public @interface Barrack {
     /** The name of the soldier, defaults to the class name.*/
     String name() default "";
 
-    /** The id prefix of the soldier, if it is */
-    String id() default "";
 }
