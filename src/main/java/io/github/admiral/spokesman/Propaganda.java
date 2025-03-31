@@ -1,5 +1,6 @@
 package io.github.admiral.spokesman;
 
+import io.github.admiral.soldier.Produce;
 import io.github.admiral.soldier.SoldierCreatable;
 import io.github.admiral.soldier.SoldierInfo;
 import io.github.admiral.soldier.SoldierInstance;
@@ -86,7 +87,7 @@ public class Propaganda implements SoldierCreatable {
                 nameInfoMap.put(method.getName(), info);
             }
 
-            Class<?> clazz = Objects.requireNonNull(proxyClass).toClass();
+            Class<?> clazz = proxyClass.toClass();
             Object proxyBean = clazz.getDeclaredConstructor().newInstance();
             proxyBean.getClass().getField(thisFiled).set(proxyBean, this);
             for (Method method: bean.getClass().getMethods()){
@@ -208,10 +209,15 @@ public class Propaganda implements SoldierCreatable {
     }
 
     private Pair<SoldierInfo, SoldierInstance> createSoldier(Object bean, Method method){
-        String name = bean.getClass().getName() + "$" + method.getName();
+        Produce[] produces = method.getDeclaredAnnotationsByType(Produce.class);
+        String produce;
+        if (produces.length == 0){
+            produce = bean.getClass().getName() + "$" + method.getName();
+        } else {
+            produce = produces[0].name();
+        }
         String[] subscribes = new String[0];
-        String[] produces = new String[]{name};
-        SoldierInfo soldierInfo = SoldierInfo.createSoldierInfo(name, subscribes, produces);
+        SoldierInfo soldierInfo = SoldierInfo.createSoldierInfo(method.getName(), subscribes, produce);
         SoldierInstance soldierInstance = new SoldierInstance(soldierInfo, bean, method);
         return Pair.of(soldierInfo, soldierInstance);
     }
