@@ -1,4 +1,4 @@
-package io.github.admiral.common;
+package io.github.admiral.communicate;
 
 import lombok.RequiredArgsConstructor;
 

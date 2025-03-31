@@ -1,4 +1,4 @@
-package io.github.admiral.common;
+package io.github.admiral.communicate;
 
 /** The execute result of the command.*/
 public enum Result {
