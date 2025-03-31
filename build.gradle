@@ -22,6 +22,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator:3.4.4'
+	implementation 'io.micrometer:micrometer-tracing:1.5.0-M3'
+	implementation 'io.micrometer:micrometer-tracing-bridge-brave:1.5.0-M3'
 	implementation 'org.apache.commons:commons-lang3:3.17.0'
 	implementation 'org.javassist:javassist:3.30.2-GA'
 
@@ -31,10 +34,17 @@ dependencies {
 	testImplementation 'org.projectlombok:lombok:1.18.36'
 	annotationProcessor 'org.projectlombok:lombok:1.18.36'
 
+	testImplementation 'org.mockito:mockito-core:5.16.1'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+test {
+	jvmArgs = [
+		"--add-opens=java.base/java.lang=ALL-UNNAMED"
+	]
 }
