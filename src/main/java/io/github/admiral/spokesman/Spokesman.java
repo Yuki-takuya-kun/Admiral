@@ -16,4 +16,8 @@ public @interface Spokesman {
 
     String name() default "";
 
+    /** Soldiers' name that should push to http client. If its length is zero, then all content will be push to
+     * frontend.*/
+    String[] needShows() default {};
+
 }
