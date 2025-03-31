@@ -17,8 +17,7 @@ public class SoldierInstance {
         try {
             return executeMethod.invoke(soldierObject, args);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            log.error("While execute " + soldierObject.getClass().getName() + "." + executeMethod.getName() +
-                    ", some error occur:\n", e);
+            log.error("While execute {}.{}, some error occur:\n", soldierObject.getClass().getName(), executeMethod.getName(), e);
         }
         return null;
     }

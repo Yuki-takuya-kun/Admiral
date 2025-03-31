@@ -44,14 +44,11 @@ class PropagandaTest {
     @Test
     void createSoldiers() {
         Map<String, Triple<RequestMappingInfo, Object, Method>> handlerMethods = new HashMap<>();
-        Mockito.doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                handlerMethods.put(invocation.getArgument(0).toString(),
-                        Triple.of(invocation.getArgument(0),
-                        invocation.getArgument(1), invocation.getArgument(2)));
-                return null;
-            }
+        Mockito.doAnswer(invocation -> {
+            handlerMethods.put(invocation.getArgument(0).toString(),
+                    Triple.of(invocation.getArgument(0),
+                    invocation.getArgument(1), invocation.getArgument(2)));
+            return null;
         }).when(requestMappingHandlerMapping).registerMapping(Mockito.any(RequestMappingInfo.class),
                 Mockito.any(Object.class), Mockito.any(Method.class));
 
