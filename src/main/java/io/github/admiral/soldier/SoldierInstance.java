@@ -13,7 +13,7 @@ public class SoldierInstance {
     private final Object soldierObject;
     private final Method executeMethod;
 
-    public Object execute(Object[] args) {
+    public Object execute(Object... args) {
         try {
             return executeMethod.invoke(soldierObject, args);
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -22,5 +22,6 @@ public class SoldierInstance {
         }
         return null;
     }
+
 }
 

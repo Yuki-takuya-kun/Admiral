@@ -16,8 +16,8 @@ import java.util.Map;
 @RequiredArgsConstructor(access= AccessLevel.PRIVATE)
 public class SoldierInfo {
     private final String name;
-    private final String[] subscribes;
-    private final String[] produces;
+    private final String[] consumes;
+    private final String produce;
 
     /** Pooling the soldier instance, and prevent creating same soldier.*/
     private static Map<String, SoldierInfo> soldiers = new HashMap<>();
@@ -27,13 +27,23 @@ public class SoldierInfo {
      * same instance.
      * @param name the fully qualified class name of the soldier, which compose of the barrack name and the method name.
      * @param subscribes
-     * @param produces
+     * @param produce
      * @return SoldierInfo
      */
-    public static SoldierInfo createSoldierInfo(String name, String[] subscribes, String[] produces){
+    public static SoldierInfo createSoldierInfo(String name, String[] subscribes, String produce){
         if (soldiers.containsKey(name)){return soldiers.get(name);}
-        SoldierInfo soldier = new SoldierInfo(name, subscribes, produces);
+        SoldierInfo soldier = new SoldierInfo(name, subscribes, produce);
         soldiers.put(name, soldier);
         return soldier;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "%s {consumes: %s, produce: %s}".formatted(name, String.join(",", consumes), produce);
     }
 }
