@@ -1,6 +1,6 @@
 package io.github.admiral.admiral;
 
-import io.github.admiral.common.SignalCorp;
+import io.github.admiral.communicate.SignalCorp;
 import io.github.admiral.service.SoldierFile;
 
 import java.util.List;
