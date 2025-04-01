@@ -1,0 +1,7 @@
+grpc:
+  conn:
+    pool:
+      maxTotalPerKey: 5
+      minIdlePerKey: 1
+      maxIdlePerKey: 5
+      maxTotal: 50
