@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+package io.github.admiral.communication;
+
+option java_package = "io.github.admiral.communicate";
+option java_outer_classname = "CommandSignalCorp";
+
+service TaskAssign {
+  rpc assign(CommandMessage) returns (google.protobuf.Empty);
+}
+
+message Execute{
+  /**Id of the job.*/
+  string jobId = 1;
+
+  string serviceName = 2;
+
+  int64 time = 3;
+
+  repeated int32 ip = 4;
+
+  repeated int32 port = 5;
+
+}
+
+message CommandMessage {
+  oneof message {
+    Execute execute = 1;
+  }
+}

@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+package io.github.admiral.communication;
+
+option java_package = "io.github.admiral.communicate.exchange";
+option java_outer_classname = "ExchangeSignalCorp";
+
+service ExchangeData {
+  rpc getData(Request) returns (Response);
+}
+
+message Request {
+  string jobId = 1;
+  string eventName = 2;
+  int64 time = 3;
+}
+
+enum responseStatus {
+  /** success status.*/
+  Success = 0;
+  /** Status that because job is not found.*/
+  JobNotFound = 1;
+  /** Status that because the cache have beend delete because of time out.*/
+  JobDeleted = 2;
+}
+
+message Response {
+  string jobId = 1;
+  string eventName = 2;
+  int64 time = 3;
+  string data = 4;
+}
+
+message ExchangeMessage {
+  oneof message {
+    Request request = 1;
+    Response response = 2;
+  }
+}
