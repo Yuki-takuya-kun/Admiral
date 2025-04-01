@@ -1,4 +1,4 @@
-package io.github.admiral.service;
+package io.github.admiral.hr;
 
 import lombok.Getter;
 
@@ -10,9 +10,7 @@ import lombok.Getter;
  */
 @Getter
 public abstract class SoldierFile {
-    protected String name;
+    protected Troop troop;
     protected String ip;
     protected int port;
-    protected String[] consumes;
-    protected String produce;
 }

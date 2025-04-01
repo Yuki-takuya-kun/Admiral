@@ -1,4 +1,4 @@
-package io.github.admiral.service;
+package io.github.admiral.hr;
 
 import io.github.admiral.soldier.SoldierInfo;
 
@@ -16,8 +16,8 @@ public class SimpleHR implements HumanResource {
 
     public boolean register(SoldierInfo soldierInfo){
         try {
-            SimpleFile service = new SimpleFile(soldierInfo.getName(), "localhost", 15423,
-                    soldierInfo.getConsumes(), soldierInfo.getProduce());
+            Troop troop = new SimpleTroop(soldierInfo.getName(), soldierInfo.getConsumes(), soldierInfo.getProduce());
+            SimpleFile service = new SimpleFile(troop, "localhost", 15423);
             services.put(soldierInfo.getName(), service);
         } catch (Exception e) {
             return false;
@@ -34,8 +34,8 @@ public class SimpleHR implements HumanResource {
         return true;
     }
 
-    public List<SoldierFile> getUniqueServices(){
-        return new ArrayList<>(services.values());
+    public List<Troop> getUniqueServices(){
+        return new ArrayList<>();
     }
 
     public SoldierFile getService(String name){

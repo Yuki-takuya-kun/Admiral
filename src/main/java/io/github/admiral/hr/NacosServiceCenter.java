@@ -1,6 +1,4 @@
-package io.github.admiral.service;
-
-import io.github.admiral.soldier.SoldierInfo;
+package io.github.admiral.hr;
 
 //public class NacosServiceCenter implements ServiceCenter {
 //    public boolean register(SoldierInfo soldierInfo){

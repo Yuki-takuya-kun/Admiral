@@ -1,4 +1,4 @@
-package io.github.admiral.service;
+package io.github.admiral.hr;
 
 import io.github.admiral.Admiral;
 import io.github.admiral.soldier.SoldierInfo;
@@ -17,7 +17,7 @@ public interface HumanResource {
     boolean unRegister(SoldierInfo soldierInfo);
 
     /** Get all services in service center. It should responsible for discard same name services.*/
-    List<SoldierFile> getUniqueServices();
+    List<Troop> getUniqueServices();
 
     /** Get an usuable service given service name, you can use load balance in this method. */
     SoldierFile getService(String name);
