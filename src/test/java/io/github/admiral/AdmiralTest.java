@@ -1,9 +1,6 @@
 package io.github.admiral;
 
-import io.github.admiral.service.HumanResource;
-import io.github.admiral.service.SimpleFile;
-import io.github.admiral.service.SimpleHR;
-import io.github.admiral.service.SoldierFile;
+import io.github.admiral.hr.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,13 +21,13 @@ class AdmiralTest {
     void tryInsertRemoveService() {
         String ip = "_";
         int port = 10;
-        SoldierFile serviceA = new SimpleFile("SA", ip, port, new String[0], "EA");
-        SoldierFile serviceB = new SimpleFile("SB", ip, port, new String[]{"EA"}, "EB");
-        SoldierFile serviceC = new SimpleFile("SC", ip, port, new String[]{"EA"}, "EC");
-        SoldierFile serviceD = new SimpleFile("SD", ip, port, new String[]{"EB"}, "ED");
-        SoldierFile serviceE = new SimpleFile("SE", ip, port, new String[]{"ED"}, "EC");
-        SoldierFile serviceF = new SimpleFile("SF", ip, port, new String[]{"EB", "EC"}, "EF");
-        SoldierFile serviceLoop = new SimpleFile("SL", ip, port, new String[]{"ED"}, "EB");
+        Troop serviceA = new SimpleTroop("SA", new String[0], "EA");
+        Troop serviceB = new SimpleTroop("SB", new String[]{"EA"}, "EB");
+        Troop serviceC = new SimpleTroop("SC", new String[]{"EA"}, "EC");
+        Troop serviceD = new SimpleTroop("SD", new String[]{"EB"}, "ED");
+        Troop serviceE = new SimpleTroop("SE", new String[]{"ED"}, "EC");
+        Troop serviceF = new SimpleTroop("SF", new String[]{"EB", "EC"}, "EF");
+        Troop serviceLoop = new SimpleTroop("SL", new String[]{"ED"}, "EB");
         assertTrue(admiral.tryInsertService(serviceB));
         assertTrue(admiral.tryInsertService(serviceA));
         assertTrue(admiral.tryInsertService(serviceC));
@@ -39,9 +36,9 @@ class AdmiralTest {
         assertTrue(admiral.tryInsertService(serviceF));
         assertFalse(admiral.tryInsertService(serviceLoop));
 
-        SoldierFile serviceG = new SimpleFile("SG", ip, port, new String[]{"ED"}, "EB");
-        SoldierFile serviceH = new SimpleFile("SB", ip, port, new String[]{"ED"}, "EB");
-        SoldierFile serviceI = new SimpleFile("SC", ip, port, new String[]{"EA"}, "EF");
+        Troop serviceG = new SimpleTroop("SG", new String[]{"ED"}, "EB");
+        Troop serviceH = new SimpleTroop("SB", new String[]{"ED"}, "EB");
+        Troop serviceI = new SimpleTroop("SC", new String[]{"EA"}, "EF");
         assertFalse(admiral.tryRemoveService(serviceG));
         assertFalse(admiral.tryRemoveService(serviceH));
         assertFalse(admiral.tryRemoveService(serviceI));
