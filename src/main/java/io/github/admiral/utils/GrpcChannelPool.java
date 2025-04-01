@@ -22,9 +22,9 @@ public class GrpcChannelPool {
     private KeyedObjectPool<HostPortKey, ManagedChannel> channelPool;
     
     @Autowired
-    public GrpcChannelPool(@Value("${grpc.conn.pool.maxTotalKey}") int maxTotalPerKey,
+    public GrpcChannelPool(@Value("${grpc.conn.pool.maxTotalPerKey}") int maxTotalPerKey,
                            @Value("${grpc.conn.pool.minIdlePerKey}") int minIdlePerKey,
-                           @Value("${grpc.conn.pool.maxIdelPerKey}") int maxIdlePerKey,
+                           @Value("${grpc.conn.pool.maxIdlePerKey}") int maxIdlePerKey,
                            @Value("${grpc.conn.pool.maxTotal}") int maxTotal
                            ) {
         GenericKeyedObjectPoolConfig config = new GenericKeyedObjectPoolConfig();
