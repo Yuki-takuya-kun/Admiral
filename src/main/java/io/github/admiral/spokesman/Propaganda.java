@@ -60,7 +60,7 @@ public class Propaganda implements SoldierCreatable {
     }
 
     public SseEmitter invoke(String name, Object... args){
-        return null;
+        return new SseEmitter();
     }
 
     /**
@@ -145,7 +145,7 @@ public class Propaganda implements SoldierCreatable {
      */
     private @Nullable CtClass createProxyBean(Object bean){
         ClassPool classPool = ClassPool.getDefault();
-        CtClass ctClass = classPool.makeClass("io.admiral.dynamic.%s".formatted(bean.getClass().getName()));
+        CtClass ctClass = classPool.makeClass("io.admiral.dynamic.%s".formatted(bean.getClass().getSimpleName()));
         try {
             CtClass propagandaClazz = classPool.get(Propaganda.class.getName());
             // add headquarter to call invoke function

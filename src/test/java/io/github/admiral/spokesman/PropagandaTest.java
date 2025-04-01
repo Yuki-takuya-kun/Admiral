@@ -54,7 +54,7 @@ class PropagandaTest {
 
         LandForceSpokesman spokesman = new LandForceSpokesman();
         Map<SoldierInfo, SoldierInstance> soldierMap = propaganda.createSoldiers(spokesman);
-
+        //System.out.println(soldierMap.keySet());
         // assert if the method and parameters annotations is copied correctly or not.
         Triple<RequestMappingInfo, Object, Method> handlerMethod = handlerMethods.get("{GET [/announce/{name}]}");
         Method method = handlerMethod.getRight();
