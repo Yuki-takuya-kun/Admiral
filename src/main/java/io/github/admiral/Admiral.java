@@ -1,7 +1,7 @@
 package io.github.admiral;
 
-import io.github.admiral.service.HumanResource;
-import io.github.admiral.service.SoldierFile;
+import io.github.admiral.hr.HumanResource;
+import io.github.admiral.hr.Troop;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,29 +20,23 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Component
 @Slf4j
 public class Admiral {
-    /** Record Services*/
-    private volatile Map<String, SoldierFile> soldierFiles = new ConcurrentHashMap<>();
+    /** Record troops, key is name, value is troop.*/
+    private volatile Map<String, Troop> troops = new ConcurrentHashMap<>();
 
-    /** Record event is produced by what soldierFiles. Key is event name, Value is set of soldierFiles that produce the event.*/
-    private volatile Map<String, Set<String>> parents = new ConcurrentHashMap<>();
+    /** Record event is produced by what troops. Key is event name, Value is set of troops that produce the event.*/
+    private volatile Map<String, Set<Troop>> parents = new ConcurrentHashMap<>();
 
-    /** Record event is consumed by what soldierFiles. Key is event name, Value is set of soldierFiles that consume the event.*/
-    private volatile Map<String, Set<String>> childs = new ConcurrentHashMap<>();
-
-    /** Record the soldierFile needs what resources. Key is soldierFile name, Value is array of event consumes.*/
-    private volatile Map<String, String[]> consumes = new ConcurrentHashMap<>();
-
-    /** Record the soldierFile produce what event. Key is soldierFile name, Value is produce event*/
-    private volatile Map<String, String> produces = new ConcurrentHashMap<>();
+    /** Record event is consumed by what troops. Key is event name, Value is set of troops that consume the event.*/
+    private volatile Map<String, Set<Troop>> childs = new ConcurrentHashMap<>();
 
     /** Record the event graph. Key is parent event name, Value is child event name.*/
     private volatile Map<String, Set<String>> events = new ConcurrentHashMap<>();
 
-    /** Record root soldierFiles. Each root soldierFile will maintain a message queue that can poll message for each completed
+    /** Record root troops. Each root soldierFile will maintain a message queue that can poll message for each completed
      * task. The index of rootService is the partition index in message queue.*/
-    private volatile List<String> rootServices = new CopyOnWriteArrayList<>();
+    private volatile List<Troop> rootTroops = new CopyOnWriteArrayList<>();
 
-    /** Record removed soldierFiles that incur any partition is idle, reuse them.*/
+    /** Record removed troops that incur any partition is idle, reuse them.*/
     private volatile Queue<Integer> idleList = new ConcurrentLinkedQueue<>();
 
     private final HumanResource humanResource;
@@ -55,92 +49,81 @@ public class Admiral {
 
     /** Initalize the initial graph, we using a step forward creating a graph.*/
     private void initGraph(){
-        List<SoldierFile> soldierFiles = humanResource.getUniqueServices();
-        for (SoldierFile soldierFile : soldierFiles) {
-            tryInsertService(soldierFile);
+        List<Troop> troops = humanResource.getUniqueServices();
+        for (Troop troop : troops) {
+            tryInsertService(troop);
         }
     }
 
     /** Try insert SoldierFile to admiral, if fail it will return false.*/
-    public boolean tryInsertService(SoldierFile soldierFile){
-        String[] consumes = soldierFile.getConsumes();
-        String produce = soldierFile.getProduce();
-        String name = soldierFile.getName();
-        if (this.consumes.containsKey(name)) {
-            return false;
-        }
+    public boolean tryInsertService(Troop troop){
+        String[] consumes = troop.getConsumes();
+        String produce = troop.getProduce();
+        String name = troop.getName();
+        // already contains.
+        if (this.troops.containsKey(name)) {return false;}
         // if the produce is not in the events or consumes length is zero.
         // We do not need to check if there is a loop.
         if (consumes.length == 0 || !events.containsKey(produce)){
-            insertService(soldierFile);
+            insertService(troop);
             return true;
         }
         // Or we should first check if there has a loop while.
         if (hasLoop(produce, consumes)){
-            log.error("SoldierFile %s registered failed because it has loop", name);
+            log.error("SoldierFile {} registered failed because it has loop", name);
             return false;
         }
-        insertService(soldierFile);
+        insertService(troop);
         return true;
     }
 
-    private void insertService(SoldierFile soldierFile) {
-        String[] consumes = soldierFile.getConsumes();
-        String produce = soldierFile.getProduce();
-        String name = soldierFile.getName();
-        soldierFiles.put(name, soldierFile);
-        if (consumes.length == 0) rootServices.add(name);
-        this.consumes.put(name, consumes);
-        this.produces.put(name, produce);
+    private void insertService(Troop troop) {
+        String[] consumes = troop.getConsumes();
+        String produce = troop.getProduce();
+        String name = troop.getName();
+        troops.put(name, troop);
+        if (consumes.length == 0) rootTroops.add(troop);
         if (!parents.containsKey(produce)) {parents.put(produce, new HashSet<>());}
         if (!childs.containsKey(produce)) {childs.put(produce, new HashSet<>());}
         if (!events.containsKey(produce)) {events.put(produce, new HashSet<>());}
-        Set<String> parent = parents.get(produce);
-        parent.add(name);
+        Set<Troop> parent = parents.get(produce);
+        parent.add(troop);
         for (String consume: consumes){
             if (!childs.containsKey(consume)) {childs.put(consume, new HashSet<>());}
-            Set<String> child = childs.get(consume);
-            child.add(name);
+            Set<Troop> child = childs.get(consume);
+            child.add(troop);
             if (!events.containsKey(consume)) {events.put(consume, new HashSet<>());}
             events.get(consume).add(produce);
         }
     }
 
     /** When remove soldierFile, the graph may be change event if there have running process.*/
-    public boolean tryRemoveService(SoldierFile soldierFile){
-        String[] consumes = soldierFile.getConsumes();
-        String produce = soldierFile.getProduce();
-        String name = soldierFile.getName();
-        if (!this.consumes.containsKey(name)) {
-            return false;
-        }
-        if (!this.produces.containsKey(name)) {
-            return false;
-        }
-        if (!parents.get(produce).contains(name)) {
+    public boolean tryRemoveService(Troop troop){
+        String[] consumes = troop.getConsumes();
+        String produce = troop.getProduce();
+        String name = troop.getName();
+        if (!parents.get(produce).contains(troop)) {
             return false;
         }
         for (String consume: consumes){
             if (!this.events.containsKey(consume) ||
-            !this.childs.get(consume).contains(name)) {return false;}
+            !this.childs.get(consume).contains(troop)) {return false;}
         }
-        removeService(soldierFile);
+        removeService(troop);
         return true;
     }
 
-    private void removeService(SoldierFile soldierFile){
-        String[] consumes = soldierFile.getConsumes();
-        String produce = soldierFile.getProduce();
-        String name = soldierFile.getName();
-        soldierFiles.remove(name);
-        this.consumes.remove(name);
-        this.produces.remove(name);
-        parents.get(produce).remove(name);
+    private void removeService(Troop troop){
+        String[] consumes = troop.getConsumes();
+        String produce = troop.getProduce();
+        String name = troop.getName();
+        troops.remove(name);
+        parents.get(produce).remove(troop);
         for (String consume: consumes){
-            childs.get(consume).remove(name);
+            childs.get(consume).remove(troop);
         }
-        if (rootServices.contains(name) && !idleList.contains(rootServices.indexOf(name)))
-            idleList.add(rootServices.indexOf(name));
+        if (rootTroops.contains(troop) && !idleList.contains(rootTroops.indexOf(troop)))
+            idleList.add(rootTroops.indexOf(troop));
     }
 
     /** Find there is a loop in the graph.
@@ -158,7 +141,7 @@ public class Admiral {
         path.add(Pair.of(eventName, 0));
         visited.put(eventName, 1);
         while (!path.isEmpty()){
-            Pair<String, Integer> pair = path.remove(path.size()-1);
+            Pair<String, Integer> pair = path.removeLast();
             String event = pair.getKey();
             int idx = pair.getValue();
             if (idx >= events.get(event).size()){
