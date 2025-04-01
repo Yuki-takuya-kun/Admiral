@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.4.4'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'com.google.protobuf' version '0.9.4'
 }
 
 group = 'com.example'
@@ -28,6 +29,18 @@ dependencies {
 	implementation 'org.apache.commons:commons-lang3:3.17.0'
 	implementation 'org.javassist:javassist:3.30.2-GA'
 
+	// grpc dependencies
+	implementation 'net.devh:grpc-spring-boot-starter:3.1.0.RELEASE'
+	implementation 'io.grpc:grpc-netty-shaded:1.63.0'
+	implementation 'com.google.protobuf:protobuf-java:4.30.2'
+	implementation 'io.grpc:grpc-protobuf:1.63.0'
+	implementation 'io.grpc:grpc-stub:1.63.0'
+	implementation 'javax.annotation:javax.annotation-api:1.3.2'
+
+	// apache pool
+	implementation 'org.apache.commons:commons-pool2:2.12.1'
+
+
 	compileOnly 'org.projectlombok:lombok:1.18.36'
 	annotationProcessor 'org.projectlombok:lombok:1.18.36'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -47,4 +60,22 @@ test {
 	jvmArgs = [
 		"--add-opens=java.base/java.lang=ALL-UNNAMED"
 	]
+}
+
+protobuf {
+	protoc {
+		artifact = "com.google.protobuf:protoc:4.30.2" // 使用与依赖相同的版本
+	}
+
+	plugins {
+		grpc {
+			artifact = 'io.grpc:protoc-gen-grpc-java:1.71.0' // 使用与gRPC相同的版本
+		}
+	}
+
+	generateProtoTasks {
+		all()*.plugins {
+			grpc {}
+		}
+	}
 }
