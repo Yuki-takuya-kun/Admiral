@@ -7,7 +7,7 @@ import io.github.admiral.communicate.exchange.ExchangeDataGrpc;
 import io.github.admiral.communicate.exchange.ExchangeSignalCorp;
 import io.github.admiral.communicate.report.ReportSignalCorp;
 import io.github.admiral.communicate.report.TaskReportGrpc;
-import io.github.admiral.service.HumanResource;
+import io.github.admiral.hr.HumanResource;
 import io.github.admiral.soldier.SoldierCreatable;
 import io.github.admiral.soldier.SoldierInfo;
 import io.github.admiral.soldier.SoldierInstance;
