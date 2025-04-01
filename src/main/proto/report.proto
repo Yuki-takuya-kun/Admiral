@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+package io.github.admiral.communication;
+
+option java_package = "io.github.admiral.communicate.report";
+option java_outer_classname = "ReportSignalCorp";
+
+/** Service that transfer message to admiral.*/
+service TaskReport{
+  rpc report(ReportMessage) returns (google.protobuf.Empty);
+}
+
+/** Execution status that of the command by admiral.*/
+enum ExecuteStatus {
+  /** Execution is success.*/
+  aSuccess = 0;
+  /** Execution is failed because can not get the event data.*/
+  RequestFail = 1;
+  /** Execution is failed because the soldier.*/
+  SoldierFail = 2;
+  /** Execution is failed for other reasons.*/
+  Fail = 3;
+}
+
+/***
+ * Report message to admiral
+ */
+message Report {
+  /** Id of execute task. */
+  string jobId = 1;
+  /** Service name that should be execute.*/
+  string serviceName = 2;
+  /** Execution status. */
+  ExecuteStatus status = 3;
+  /** Execution time. */
+  int64 time = 4;
+  /** Details if include. */
+  string details = 5;
+}
+
+/*** Data to transmit announce which event should show in the front end.
+ *
+ * @author Jiahao Hwang
+ */
+message Register {
+  /** Name of service that need to register.*/
+  string serviceName = 1;
+  /** Events that should be show.*/
+  repeated string outputEvents = 2;
+}
+
+message ReportMessage {
+  oneof message {
+    Report report = 1;
+    Register register = 2;
+  }
+}
