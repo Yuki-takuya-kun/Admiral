@@ -1,6 +1,6 @@
 package io.github.admiral.config;
 
-import io.github.admiral.service.SimpleHR;
+import io.github.admiral.hr.SimpleHR;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
