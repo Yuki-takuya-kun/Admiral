@@ -68,14 +68,14 @@ class PropagandaTest {
 
         for (SoldierInfo soldierInfo : soldierMap.keySet()) {
             if (soldierInfo.getName().equals("io.github.admiral.spokesman.LandForceSpokesman$landForceSpokesman")) {
-                assertEquals(soldierInfo.toString(), "io.github.admiral.spokesman.LandForceSpokesman$landForceSpokesman {consumes: , produce: io.github.admiral.spokesman.LandForceSpokesman$landForceSpokesman}");
+                assertEquals(soldierInfo.toString(), "io.github.admiral.spokesman.LandForceSpokesman$landForceSpokesman {subscribes: }");
                 SoldierInstance soldierInstance = soldierMap.get(soldierInfo);
                 String response = (String) soldierInstance.execute("Alice", 12);
                 assertEquals(response, "I'am land force spokesman, my name is Alice and age is 12");
             }
 
             else if (soldierInfo.getName().equals("io.github.admiral.spokesman.LandForceSpokesman$answer")){
-                assertEquals(soldierInfo.getProduce(), "answer");
+                assertEquals(soldierInfo.getName(), "answer");
             }
         }
 

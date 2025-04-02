@@ -4,13 +4,13 @@ package io.github.admiral.soldier;
 public class ArtilleryBarrack {
 
     @Soldier(subscribes = "io.github.admiral.soldier.LandForceSpokesman$landForceSpokesman",
-    produce = "artilleryForward")
+    name = "artilleryForward")
     public String forward(){
         return "artilleryBarrack";
     }
 
     @Soldier(subscribes = "io.github.admiral.soldier.LandForceSpokesman$landForceSpokesman",
-            produce = "artilleryBomb")
+            name = "artilleryBomb")
     public String bomb(){
         return "Bomb!";
     }

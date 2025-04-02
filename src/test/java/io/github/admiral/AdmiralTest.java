@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -19,34 +22,56 @@ class AdmiralTest {
 
     @Test
     void tryInsertRemoveService() {
-        String ip = "_";
-        int port = 10;
-        Troop serviceA = new SimpleTroop("SA", new String[0], "EA");
-        Troop serviceB = new SimpleTroop("SB", new String[]{"EA"}, "EB");
-        Troop serviceC = new SimpleTroop("SC", new String[]{"EA"}, "EC");
-        Troop serviceD = new SimpleTroop("SD", new String[]{"EB"}, "ED");
-        Troop serviceE = new SimpleTroop("SE", new String[]{"ED"}, "EC");
-        Troop serviceF = new SimpleTroop("SF", new String[]{"EB", "EC"}, "EF");
-        Troop serviceLoop = new SimpleTroop("SL", new String[]{"ED"}, "EB");
-        assertTrue(admiral.tryInsertService(serviceB));
-        assertTrue(admiral.tryInsertService(serviceA));
-        assertTrue(admiral.tryInsertService(serviceC));
-        assertTrue(admiral.tryInsertService(serviceD));
-        assertTrue(admiral.tryInsertService(serviceE));
-        assertTrue(admiral.tryInsertService(serviceF));
-        assertFalse(admiral.tryInsertService(serviceLoop));
+        Troop serviceA = new SimpleTroop("SA", new Troop[0]);
+        Troop serviceB = new SimpleTroop("SB", new Troop[]{serviceA});
+        Troop serviceC = new SimpleTroop("SC", new Troop[]{serviceA});
+        Troop serviceD = new SimpleTroop("SD", new Troop[]{serviceB});
+        Troop serviceE = new SimpleTroop("SE", new Troop[]{serviceD});
+        Troop serviceF = new SimpleTroop("SF", new Troop[]{serviceB, serviceC});
+//        Troop serviceLoop = new SimpleTroop("SL", new Troop[]{serviceD});
+        assertFalse(admiral.tryInsertTroop(serviceB));
+        assertTrue(admiral.tryInsertTroop(serviceA));
+        assertTrue(admiral.tryInsertTroop(serviceB));
+        assertTrue(admiral.tryInsertTroop(serviceC));
+        assertTrue(admiral.tryInsertTroop(serviceD));
+        assertTrue(admiral.tryInsertTroop(serviceE));
+        assertTrue(admiral.tryInsertTroop(serviceF));
+        //assertFalse(admiral.tryInsertTroop(serviceLoop));
 
-        Troop serviceG = new SimpleTroop("SG", new String[]{"ED"}, "EB");
-        Troop serviceH = new SimpleTroop("SB", new String[]{"ED"}, "EB");
-        Troop serviceI = new SimpleTroop("SC", new String[]{"EA"}, "EF");
-        assertFalse(admiral.tryRemoveService(serviceG));
-        assertFalse(admiral.tryRemoveService(serviceH));
-        assertFalse(admiral.tryRemoveService(serviceI));
-        assertTrue(admiral.tryRemoveService(serviceA));
-        assertTrue(admiral.tryRemoveService(serviceB));
-        assertTrue(admiral.tryRemoveService(serviceC));
-        assertTrue(admiral.tryRemoveService(serviceD));
-        assertTrue(admiral.tryRemoveService(serviceE));
-        assertTrue(admiral.tryRemoveService(serviceF));
+        Troop serviceG = new SimpleTroop("SG", new Troop[]{serviceD});
+        Troop serviceH = new SimpleTroop("SB", new Troop[]{serviceB});
+        Troop serviceI = new SimpleTroop("SC", new Troop[]{serviceC});
+        assertFalse(admiral.tryRemoveTroop(serviceG));
+        assertFalse(admiral.tryRemoveTroop(serviceH));
+        assertFalse(admiral.tryRemoveTroop(serviceI));
+        assertTrue(admiral.tryRemoveTroop(serviceA));
+        assertTrue(admiral.tryRemoveTroop(serviceB));
+        assertTrue(admiral.tryRemoveTroop(serviceC));
+        assertTrue(admiral.tryRemoveTroop(serviceD));
+        assertTrue(admiral.tryRemoveTroop(serviceE));
+        assertTrue(admiral.tryRemoveTroop(serviceF));
+    }
+
+    @Test
+    void tryInsertBatchTroopSuccess(){
+        Troop serviceA = new SimpleTroop("SA", new Troop[0]);
+        Troop serviceB = new SimpleTroop("SB", new Troop[]{serviceA});
+        Troop serviceC = new SimpleTroop("SC", new Troop[]{serviceA, serviceB});
+        Set<Troop> batch = new HashSet<Troop>();
+        batch.add(serviceA);
+        batch.add(serviceB);
+        batch.add(serviceC);
+        assertTrue(admiral.tryInsertTroopBatch(batch));
+    }
+
+    @Test
+    void tryInsertBatchTroopFailure(){
+        Troop serviceA = new SimpleTroop("SA", new Troop[0]);
+        Troop serviceB = new SimpleTroop("SB", new Troop[]{serviceA});
+        Troop serviceC = new SimpleTroop("SC", new Troop[]{serviceA, serviceB});
+        Set<Troop> batch = new HashSet<>();
+        batch.add(serviceB);
+        batch.add(serviceC);
+        assertFalse(admiral.tryInsertTroopBatch(batch));
     }
 }

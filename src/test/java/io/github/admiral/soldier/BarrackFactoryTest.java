@@ -21,9 +21,10 @@ class BarrackFactoryTest {
         Set<String> returns = new HashSet<>();
         for (SoldierInfo soldierInfo : soldierMap.keySet()) {
             infos.add(soldierInfo.toString());
+            System.out.println(soldierInfo.toString());
             returns.add((String) soldierMap.get(soldierInfo).execute());
         }
-        assertTrue(infos.contains("io.github.admiral.soldier.ArtilleryBarrack$bomb {consumes: io.github.admiral.soldier.LandForceSpokesman$landForceSpokesman, produce: artilleryBomb}"));
+        assertTrue(infos.contains("artilleryBomb {subscribes: io.github.admiral.soldier.LandForceSpokesman$landForceSpokesman}"));
         assertTrue(returns.contains("artilleryBarrack"));
         assertTrue(returns.contains("Bomb!"));
     }
