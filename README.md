@@ -42,13 +42,13 @@ produce event will be the full qualified class name of the class concat with met
 public class ArtilleryBarrack {
 
     @Soldier(subscribes = "io.github.admiral.soldier.LandForceSpokesman$landForceSpokesman",
-    produce = "artilleryForward")
+    name = "artilleryForward")
     public String forward(){
         return "artilleryBarrack";
     }
 
     @Soldier(subscribes = "io.github.admiral.soldier.LandForceSpokesman$landForceSpokesman",
-            produce = "artilleryBomb")
+            name = "artilleryBomb")
     public String bomb(){
         return "Bomb!";
     }
@@ -57,4 +57,4 @@ public class ArtilleryBarrack {
 
 You can use `@Barrack` annotation to declare a class that contains `@Soldier` functions.
 `@Soldier` annotation contains parameter `subscribes` to declare events that should consume.
-It can also be a list of event names. `produce` element declare what event it will produce.
+It can also be a list of event names. `name` argument declare what event it will produce.
