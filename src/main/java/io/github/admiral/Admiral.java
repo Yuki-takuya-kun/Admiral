@@ -20,17 +20,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Component
 @Slf4j
 public class Admiral {
-    /** Record troops, key is name, value is troop.*/
-    private volatile Map<String, Troop> troops = new ConcurrentHashMap<>();
+    /** Record troops.*/
+    private volatile Set<Troop> troops = ConcurrentHashMap.newKeySet();
 
-    /** Record event is produced by what troops. Key is event name, Value is set of troops that produce the event.*/
-    private volatile Map<String, Set<Troop>> parents = new ConcurrentHashMap<>();
+    /** Record event is produced by what troops. Key is troop, Value is set of troops that name the event.*/
+    private volatile Map<Troop, Set<Troop>> parents = new ConcurrentHashMap<>();
 
-    /** Record event is consumed by what troops. Key is event name, Value is set of troops that consume the event.*/
-    private volatile Map<String, Set<Troop>> childs = new ConcurrentHashMap<>();
-
-    /** Record the event graph. Key is parent event name, Value is child event name.*/
-    private volatile Map<String, Set<String>> events = new ConcurrentHashMap<>();
+    /** Record event is consumed by what troops. Key is troop, Value is set of troops that consume the event.*/
+    private volatile Map<Troop, Set<Troop>> childs = new ConcurrentHashMap<>();
 
     /** Record root troops. Each root soldierFile will maintain a message queue that can poll message for each completed
      * task. The index of rootService is the partition index in message queue.*/
@@ -51,111 +48,157 @@ public class Admiral {
     private void initGraph(){
         List<Troop> troops = humanResource.getUniqueServices();
         for (Troop troop : troops) {
-            tryInsertService(troop);
+            tryInsertTroop(troop);
         }
+    }
+
+    /** Insert batch troops, it is a transaction, which means all troop will be register or none troop will be registered.
+     * Using topo sort to insert.
+     * */
+    public boolean tryInsertTroopBatch(Set<Troop> troops){
+        int cnt = 0;
+        Set<Troop> unregisteredTroops = new HashSet<>();
+        for (Troop troop : troops) {
+            if (!this.troops.contains(troop)) {
+                unregisteredTroops.add(troop);
+            }
+        }
+
+        Map<Troop, Integer> parentCounter = new HashMap<>();
+        Map<Troop, Set<Troop>> childs = new HashMap<>();
+        for (Troop troop: unregisteredTroops) {
+            parentCounter.put(troop, 0);
+            if (!childs.containsKey(troop)) { childs.put(troop, new HashSet<>()); }
+            for (Troop sub: troop.getSubscribes()){
+                if (!this.troops.contains(sub)) {
+                    if (!childs.containsKey(sub)) {childs.put(sub, new HashSet<>());}
+                    childs.get(sub).add(troop);
+                    parentCounter.put(troop, parentCounter.get(troop) + 1);
+                }
+            }
+        }
+
+        List<Troop> topoPath = new ArrayList<>();
+        for (Troop troop: unregisteredTroops) {
+            if (parentCounter.get(troop) == 0) topoPath.add(troop);
+        }
+
+        while (!topoPath.isEmpty()) {
+            Troop troop = topoPath.remove(0);
+            cnt ++;
+            for (Troop child: childs.get(troop)) {
+                parentCounter.put(child, parentCounter.get(child) - 1);
+                if (parentCounter.get(child) == 0) {
+                    topoPath.add(child);
+                }
+            }
+        }
+
+        if (cnt == unregisteredTroops.size()) {
+            insertTroop(unregisteredTroops);
+            return true;
+        }
+
+        return false;
     }
 
     /** Try insert SoldierFile to admiral, if fail it will return false.*/
-    public boolean tryInsertService(Troop troop){
-        String[] consumes = troop.getConsumes();
-        String produce = troop.getProduce();
-        String name = troop.getName();
+    public boolean tryInsertTroop(Troop troop){
+        Troop[] subscribes = troop.getSubscribes();
         // already contains.
-        if (this.troops.containsKey(name)) {return false;}
-        // if the produce is not in the events or consumes length is zero.
+        if (this.troops.contains(troop)) {return false;}
+
+        // if the troop is not in the events or subscribes length is zero.
         // We do not need to check if there is a loop.
-        if (consumes.length == 0 || !events.containsKey(produce)){
-            insertService(troop);
+        if (subscribes.length == 0){
+            insertTroop(troop);
             return true;
         }
-        // Or we should first check if there has a loop while.
-        if (hasLoop(produce, consumes)){
-            log.error("SoldierFile {} registered failed because it has loop", name);
-            return false;
+
+        // Only if all subscribe troops in troops can be register.
+        for (Troop sub : subscribes) {
+            if (!this.troops.contains(sub)) {return false;}
         }
-        insertService(troop);
+
+        // Or we should first check if there has a loop while.
+        // Deprecated
+//        if (hasLoop(troop)){
+//            String name = troop.getName();
+//            log.error("SoldierFile {} registered failed because it has loop", name);
+//            return false;
+//        }
+        insertTroop(troop);
         return true;
     }
 
-    private void insertService(Troop troop) {
-        String[] consumes = troop.getConsumes();
-        String produce = troop.getProduce();
-        String name = troop.getName();
-        troops.put(name, troop);
-        if (consumes.length == 0) rootTroops.add(troop);
-        if (!parents.containsKey(produce)) {parents.put(produce, new HashSet<>());}
-        if (!childs.containsKey(produce)) {childs.put(produce, new HashSet<>());}
-        if (!events.containsKey(produce)) {events.put(produce, new HashSet<>());}
-        Set<Troop> parent = parents.get(produce);
-        parent.add(troop);
-        for (String consume: consumes){
-            if (!childs.containsKey(consume)) {childs.put(consume, new HashSet<>());}
-            Set<Troop> child = childs.get(consume);
+    private void insertTroop(Set<Troop> troops){
+        troops.forEach(t -> {insertTroop(t);});
+    }
+
+    private void insertTroop(Troop troop) {
+        Troop[] subscribes = troop.getSubscribes();
+        troops.add(troop);
+        if (subscribes.length == 0) rootTroops.add(troop);
+        if (!parents.containsKey(troop)) {parents.put(troop, new HashSet<>());}
+        if (!childs.containsKey(troop)) {childs.put(troop, new HashSet<>());}
+        for (Troop subscribe: subscribes){
+            if (!childs.containsKey(subscribe)) {childs.put(subscribe, new HashSet<>());}
+            Set<Troop> child = childs.get(subscribe);
             child.add(troop);
-            if (!events.containsKey(consume)) {events.put(consume, new HashSet<>());}
-            events.get(consume).add(produce);
         }
     }
 
     /** When remove soldierFile, the graph may be change event if there have running process.*/
-    public boolean tryRemoveService(Troop troop){
-        String[] consumes = troop.getConsumes();
-        String produce = troop.getProduce();
-        String name = troop.getName();
-        if (!parents.get(produce).contains(troop)) {
-            return false;
+    public boolean tryRemoveTroop(Troop troop){
+        Troop[] subscribes = troop.getSubscribes();
+        if (!parents.containsKey(troop)) return false;
+
+        for (Troop subscirbe: subscribes){
+            if (!this.childs.get(subscirbe).contains(troop)) {return false;}
         }
-        for (String consume: consumes){
-            if (!this.events.containsKey(consume) ||
-            !this.childs.get(consume).contains(troop)) {return false;}
-        }
-        removeService(troop);
+        removeTroop(troop);
         return true;
     }
 
-    private void removeService(Troop troop){
-        String[] consumes = troop.getConsumes();
-        String produce = troop.getProduce();
-        String name = troop.getName();
-        troops.remove(name);
-        parents.get(produce).remove(troop);
-        for (String consume: consumes){
-            childs.get(consume).remove(troop);
+    private void removeTroop(Troop troop){
+        Troop[] subscribes = troop.getSubscribes();
+        troops.remove(troop);
+        parents.remove(troop);
+        for (Troop subscribe : subscribes){
+            childs.get(subscribe).remove(troop);
         }
         if (rootTroops.contains(troop) && !idleList.contains(rootTroops.indexOf(troop)))
             idleList.add(rootTroops.indexOf(troop));
     }
 
     /** Find there is a loop in the graph.
-     * @param eventName the name of event that as root node.
-     * @param visitingEvents visitinngEvents is a array that should not visit, the value of visitingEvents will be
-     *                       seemed as visiting while begin.
+     * @param troop troop object that need to assert loop.
      * */
-    private boolean hasLoop(String eventName, String[] visitingEvents){
+    private boolean hasLoop(Troop troop){
         // 0 for unmeet, 1 for visiting, 2 for visited and there is no need to search again for 2.
-        Map<String, Integer> visited = new HashMap<>();
-        for (String visitingEvent : visitingEvents){
-            visited.put(visitingEvent, 1);
-        }
-        List<Pair<String, Integer>> path = new ArrayList<>();
-        path.add(Pair.of(eventName, 0));
-        visited.put(eventName, 1);
+        Map<Troop, Integer> visited = new HashMap<>();
+//        for (String visitingEvent : visitingEvents){
+//            visited.put(visitingEvent, 1);
+//        }
+        List<Pair<Troop, Integer>> path = new ArrayList<>();
+        path.add(Pair.of(troop, 0));
+        visited.put(troop, 1);
         while (!path.isEmpty()){
-            Pair<String, Integer> pair = path.removeLast();
-            String event = pair.getKey();
+            Pair<Troop, Integer> pair = path.removeLast();
+            Troop t = pair.getKey();
             int idx = pair.getValue();
-            if (idx >= events.get(event).size()){
+            if (idx >= childs.get(t).size()){
                 path.remove(pair);
-                visited.put(event, 2);
+                visited.put(t, 2);
                 continue;
             }
-            path.add(Pair.of(event, idx+1));
-            String nextEvent = events.get(event).toArray(new String[0])[idx];
-            if (!visited.containsKey(nextEvent)){ visited.put(nextEvent, 0);}
-            if (visited.get(nextEvent) == 1) return true;
-            else if (visited.get(nextEvent) == 2){ continue;}
-            visited.put(nextEvent, 1);
-            path.add(Pair.of(nextEvent, 0));
+            path.add(Pair.of(t, idx+1));
+            Troop nextTroop = childs.get(t).toArray(new Troop[0])[idx];
+            if (!visited.containsKey(nextTroop)){ visited.put(nextTroop, 0);}
+            if (visited.get(nextTroop) == 1) return true;
+            else if (visited.get(nextTroop) == 2){ continue;}
+            visited.put(nextTroop, 1);
+            path.add(Pair.of(nextTroop, 0));
         }
         return false;
     }

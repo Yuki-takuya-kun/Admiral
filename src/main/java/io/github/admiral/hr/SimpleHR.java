@@ -15,13 +15,13 @@ public class SimpleHR implements HumanResource {
     Map<String, SimpleFile> services;
 
     public boolean register(SoldierInfo soldierInfo){
-        try {
-            Troop troop = new SimpleTroop(soldierInfo.getName(), soldierInfo.getConsumes(), soldierInfo.getProduce());
-            SimpleFile service = new SimpleFile(troop, "localhost", 15423);
-            services.put(soldierInfo.getName(), service);
-        } catch (Exception e) {
-            return false;
-        }
+//        try {
+//            Troop troop = new SimpleTroop(soldierInfo.getName(), soldierInfo.getSbscribes());
+//            SimpleFile service = new SimpleFile(troop, "localhost", 15423);
+//            services.put(soldierInfo.getName(), service);
+//        } catch (Exception e) {
+//            return false;
+//        }
         return true;
     }
 

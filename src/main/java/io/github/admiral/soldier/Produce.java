@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This annotation is announcing which event the url mapping will produce.
+ * This annotation is announcing which event the url mapping will name.
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

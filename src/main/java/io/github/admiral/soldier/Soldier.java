@@ -17,6 +17,6 @@ public @interface Soldier {
     /** It indicates this method will subscribe what commands.*/
     String[] subscribes() default {};
 
-    /** It indicates this method will produce what command.*/
-    String produce() default "";
+    /** It indicates this method will name what command.*/
+    String name() default "";
 }

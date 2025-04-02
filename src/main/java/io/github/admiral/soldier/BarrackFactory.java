@@ -23,10 +23,9 @@ public class BarrackFactory implements SoldierCreatable{
             for (Annotation annotation: method.getDeclaredAnnotations()) {
                 if (annotation instanceof Soldier soldier){
                     // Default soldier name will be the full quality barrackName concat with method name.
-                    String name = barrack.getClass().getName() + "$" + method.getName();
+                    String name = soldier.name();
                     String[] subscribes = soldier.subscribes();
-                    String produce = soldier.produce();
-                    SoldierInfo soldierInfo = SoldierInfo.createSoldierInfo(name, subscribes, produce);
+                    SoldierInfo soldierInfo = SoldierInfo.createSoldierInfo(name, subscribes);
                     SoldierInstance soldierInstance = new SoldierInstance(soldierInfo, barrack, method);
                     soldiers.put(soldierInfo, soldierInstance);
                 }

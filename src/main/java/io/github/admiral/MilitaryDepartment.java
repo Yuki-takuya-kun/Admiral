@@ -68,7 +68,7 @@ public class MilitaryDepartment {
             if (!humanResource.register(soldierInfo)){
                 log.error("Soldier " + soldierInfo + "registered fail.");
             };
-            if (soldierInfo.getConsumes().length == 0){
+            if (soldierInfo.getSbscribes().length == 0){
 //                RegisterMessage registerMessage = new RegisterMessage(soldierInfo.getName(), new String[]{"all"});
 //                admiralSignalCorp.send(registerMessage);
             }

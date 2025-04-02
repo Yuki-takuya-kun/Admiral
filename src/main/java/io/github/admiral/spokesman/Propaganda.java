@@ -210,14 +210,14 @@ public class Propaganda implements SoldierCreatable {
 
     private Pair<SoldierInfo, SoldierInstance> createSoldier(Object bean, Method method){
         Produce[] produces = method.getDeclaredAnnotationsByType(Produce.class);
-        String produce;
+        String name;
         if (produces.length == 0){
-            produce = bean.getClass().getName() + "$" + method.getName();
+            name = bean.getClass().getName() + "$" + method.getName();
         } else {
-            produce = produces[0].name();
+            name = produces[0].name();
         }
         String[] subscribes = new String[0];
-        SoldierInfo soldierInfo = SoldierInfo.createSoldierInfo(method.getName(), subscribes, produce);
+        SoldierInfo soldierInfo = SoldierInfo.createSoldierInfo(name, subscribes);
         SoldierInstance soldierInstance = new SoldierInstance(soldierInfo, bean, method);
         return Pair.of(soldierInfo, soldierInstance);
     }
