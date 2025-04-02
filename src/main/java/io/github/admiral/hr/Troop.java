@@ -1,17 +1,12 @@
 package io.github.admiral.hr;
 
-import io.github.admiral.soldier.Soldier;
 import lombok.Getter;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /** Class that organize same name soldiers, all soldier should have same produces and consume.*/
 @Getter
 public abstract class Troop {
     protected String name;
-    protected String[] consumes;
-    protected String produce;
+    protected Troop[] subscribes;
 
     @Override
     public boolean equals(Object o) {
@@ -24,5 +19,10 @@ public abstract class Troop {
     @Override
     public int hashCode() {
         return name.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }
