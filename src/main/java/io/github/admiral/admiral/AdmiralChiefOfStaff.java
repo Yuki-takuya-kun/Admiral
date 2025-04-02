@@ -56,21 +56,22 @@ public class AdmiralChiefOfStaff implements ChiefOfStaff {
 
         // if the request is running
         Trace trace = traceRepository.getTrace(requestInfo);
-        try {
-            trace.completeTroop(troop);
-            for (Troop child: childs.get(troop)){
-                if (runTroop(child, trace)) nextTroops.add(child);
+        synchronized (trace){
+            try {
+                trace.completeTroop(troop);
+                for (Troop child: childs.get(troop)){
+                    if (runTroop(child, trace)) nextTroops.add(child);
+                }
+            }
+            catch (TroopNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            // finally, if running troops set is empty, then the task is end
+            if (!trace.isRunning()) {
+                traceRepository.setRequestOutdated(requestInfo);
             }
         }
-        catch (TroopNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        // finally, if running troops set is empty, then the task is end
-        if (trace.isRunning()) {
-            traceRepository.setRequestOutdated(requestInfo);
-        }
-
         return nextTroops;
     }
 
