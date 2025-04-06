@@ -7,7 +7,10 @@ import io.github.admiral.communicate.exchange.ExchangeDataGrpc;
 import io.github.admiral.communicate.exchange.ExchangeSignalCorp;
 import io.github.admiral.communicate.report.ReportSignalCorp;
 import io.github.admiral.communicate.report.TaskReportGrpc;
-import io.github.admiral.hr.HumanResource;
+import io.github.admiral.department.AbstractMilitaryDepartment;
+import io.github.admiral.department.ExchangeData;
+import io.github.admiral.department.ExchangeRequest;
+import io.github.admiral.hr.HumanResourceClient;
 import io.github.admiral.soldier.SoldierCreatable;
 import io.github.admiral.soldier.SoldierInfo;
 import io.github.admiral.soldier.SoldierInstance;
@@ -27,21 +30,21 @@ import java.util.Map;
 
 @Component
 @Slf4j(topic="SoldierLogger")
-public class MilitaryDepartment {
+public class MilitaryDepartment extends AbstractMilitaryDepartment {
 
     private final ApplicationContext applicationContext;
     private final SoldierCreatable[] soldierFactories;
-    private final HumanResource humanResource;
+    private final HumanResourceClient humanResourceClient;
     private final GrpcChannelPool grpcChannelPool;
 
     private Map<SoldierInfo, SoldierInstance> soldiers = new HashMap<SoldierInfo, SoldierInstance>();
 
     @Autowired
     public MilitaryDepartment(ApplicationContext context,
-                              HumanResource humanResource,
+                              HumanResourceClient humanResourceClient,
                               GrpcChannelPool grpcChannelPool) {
         this.applicationContext = context;
-        this.humanResource = humanResource;
+        this.humanResourceClient = humanResourceClient;
         this.grpcChannelPool = grpcChannelPool;
         soldierFactories = applicationContext.getBeansOfType(SoldierCreatable.class).values().toArray(new SoldierCreatable[0]);
 
@@ -65,14 +68,17 @@ public class MilitaryDepartment {
     /** Register all soldiers to service center and admiral.*/
     public void registerSoldiers(){
         for (SoldierInfo soldierInfo : soldiers.keySet()) {
-            if (!humanResource.register(soldierInfo)){
-                log.error("Soldier " + soldierInfo + "registered fail.");
-            };
-            if (soldierInfo.getSbscribes().length == 0){
+            humanResourceClient.register(soldierInfo);
+            if (soldierInfo.getSubscribes().length == 0){
 //                RegisterMessage registerMessage = new RegisterMessage(soldierInfo.getName(), new String[]{"all"});
 //                admiralSignalCorp.send(registerMessage);
             }
         }
+    }
+
+    @Override
+    public ExchangeData getData(ExchangeRequest request){
+        return null;
     }
 
     public void report(String host, int port, ReportSignalCorp.ReportMessage reportMessage){
@@ -104,23 +110,5 @@ public class MilitaryDepartment {
         }
     }
 
-    @GrpcService
-    public class TaskExecutor extends TaskAssignGrpc.TaskAssignImplBase {
-
-        @Override
-        public void assign(CommandSignalCorp.CommandMessage request,
-                           StreamObserver<com.google.protobuf.Empty> responseObserver){
-            responseObserver.onNext(Empty.getDefaultInstance());
-            responseObserver.onCompleted();
-        }
-    }
-
-    @GrpcService
-    public class GetData extends ExchangeDataGrpc.ExchangeDataImplBase{
-        @Override
-        public void getData(ExchangeSignalCorp.Request request, StreamObserver<ExchangeSignalCorp.Response> response){
-
-        }
-    }
 
 }

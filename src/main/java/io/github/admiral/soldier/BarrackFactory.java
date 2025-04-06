@@ -25,8 +25,8 @@ public class BarrackFactory implements SoldierCreatable{
                     // Default soldier name will be the full quality barrackName concat with method name.
                     String name = soldier.name();
                     String[] subscribes = soldier.subscribes();
-                    SoldierInfo soldierInfo = SoldierInfo.createSoldierInfo(name, subscribes);
-                    SoldierInstance soldierInstance = new SoldierInstance(soldierInfo, barrack, method);
+                    SoldierInfo soldierInfo = SoldierFactory.createSoldierInfo(name, subscribes);
+                    SoldierInstance soldierInstance = SoldierFactory.createSoldierInstance(soldierInfo, barrack, method);
                     soldiers.put(soldierInfo, soldierInstance);
                 }
             }

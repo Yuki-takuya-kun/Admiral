@@ -1,9 +1,6 @@
 package io.github.admiral.spokesman;
 
-import io.github.admiral.soldier.Produce;
-import io.github.admiral.soldier.SoldierCreatable;
-import io.github.admiral.soldier.SoldierInfo;
-import io.github.admiral.soldier.SoldierInstance;
+import io.github.admiral.soldier.*;
 import javassist.*;
 import javassist.bytecode.AnnotationsAttribute;
 import javassist.bytecode.ConstPool;
@@ -217,8 +214,8 @@ public class Propaganda implements SoldierCreatable {
             name = produces[0].name();
         }
         String[] subscribes = new String[0];
-        SoldierInfo soldierInfo = SoldierInfo.createSoldierInfo(name, subscribes);
-        SoldierInstance soldierInstance = new SoldierInstance(soldierInfo, bean, method);
+        SoldierInfo soldierInfo = SoldierFactory.createSoldierInfo(name, subscribes);
+        SoldierInstance soldierInstance = SoldierFactory.createSoldierInstance(soldierInfo, bean, method);
         return Pair.of(soldierInfo, soldierInstance);
     }
 }
