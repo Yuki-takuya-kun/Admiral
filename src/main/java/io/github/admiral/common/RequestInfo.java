@@ -5,8 +5,8 @@ import lombok.Getter;
 /** A structure that conserve request information.*/
 @Getter
 public class RequestInfo {
-    String requestId;
-    Long createTime;
+    private final String requestId;
+    private final Long createTime;
 
     public RequestInfo(String requestId, Long createTime) {
         this.requestId = requestId;
