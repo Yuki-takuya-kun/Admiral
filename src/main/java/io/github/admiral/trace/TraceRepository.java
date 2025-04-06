@@ -1,5 +1,6 @@
-package io.github.admiral.common;
+package io.github.admiral.trace;
 
+import io.github.admiral.common.RequestInfo;
 import io.github.admiral.utils.RingQueue;
 import lombok.Getter;
 
