@@ -1,7 +1,6 @@
 package io.github.admiral.soldier;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -21,7 +20,6 @@ class BarrackFactoryTest {
         Set<String> returns = new HashSet<>();
         for (SoldierInfo soldierInfo : soldierMap.keySet()) {
             infos.add(soldierInfo.toString());
-            System.out.println(soldierInfo.toString());
             returns.add((String) soldierMap.get(soldierInfo).execute());
         }
         assertTrue(infos.contains("artilleryBomb {subscribes: io.github.admiral.soldier.LandForceSpokesman$landForceSpokesman}"));
