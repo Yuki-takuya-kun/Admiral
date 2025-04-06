@@ -1,7 +1,7 @@
 package io.github.admiral.admiral;
 
 import io.github.admiral.common.RequestInfo;
-import io.github.admiral.hr.Troop;
+import io.github.admiral.hr.BaseTroop;
 
 import java.util.List;
 
@@ -12,5 +12,5 @@ public interface ChiefOfStaff {
     public boolean isEnd(RequestInfo requestInfo);
 
     /** Get next services while complete the service in param.*/
-    public List<Troop> nextTroop(RequestInfo requestInfo, Troop troop);
+    public List<BaseTroop> nextTroop(RequestInfo requestInfo, BaseTroop troop);
 }

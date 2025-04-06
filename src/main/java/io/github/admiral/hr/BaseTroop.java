@@ -4,15 +4,29 @@ import lombok.Getter;
 
 /** Class that organize same name soldiers, all soldier should have same produces and consume.*/
 @Getter
-public abstract class Troop {
-    protected String name;
-    protected Troop[] subscribes;
+public abstract class BaseTroop {
+
+    protected final String name;
+    protected BaseTroop[] subscribes;
+
+    public BaseTroop(String name, BaseTroop[] subscribes){
+        this.name = name;
+        this.subscribes = subscribes;
+    }
+
+    public BaseTroop(String name){
+        this.name = name;
+    }
+
+    public void setSubscribes(BaseTroop[] subscribes){
+        this.subscribes = subscribes;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o){return true;}
         if (o == null || getClass() != o.getClass()){return false;}
-        Troop troop = (Troop) o;
+        BaseTroop troop = (BaseTroop) o;
         return name.equals(troop.name);
     }
 
