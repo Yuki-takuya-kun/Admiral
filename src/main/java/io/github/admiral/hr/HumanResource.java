@@ -4,21 +4,25 @@ import io.github.admiral.Admiral;
 import io.github.admiral.soldier.SoldierInfo;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * ServiceCenter interface. ServiceCenter is a middleware that can helps {@link Admiral} to choose next soldier to
  * execute the task.
  */
 public interface HumanResource {
+
     /** Register soldier to service center.*/
-    boolean register(SoldierInfo soldierInfo);
+    void register(SoldierFile soldierFile);
 
-    /** Remove soldier from service center.*/
-    boolean unRegister(SoldierInfo soldierInfo);
+    /** Get soldier information. */
+    SoldierInfo getInfo(String name);
 
-    /** Get all services in service center. It should responsible for discard same name services.*/
-    List<Troop> getUniqueServices();
+    /** Get all soldier files given name.*/
+    List<SoldierFile> getFiles(String name);
 
-    /** Get an usuable service given service name, you can use load balance in this method. */
-    SoldierFile getService(String name);
+    /** Get a soldier file given name. That can use load balanced algorithm to complete it.*/
+    SoldierFile getFile(String name);
 }
