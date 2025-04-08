@@ -38,7 +38,7 @@ public class BattleField {
         CompletableFuture.supplyAsync(soldierWrapper, battleFieldExecutor)
                 .orTimeout(timeout, TimeUnit.MILLISECONDS)
                 .whenComplete((result, throwable) -> {
-            if (throwable != null) {
+            if (throwable != null && battleFieldExceptionHandler != null) {
                 battleFieldExceptionHandler.handle(soldierWrapper, throwable);
             }
         });
